@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-wrapper">
+    <div class="card form-card-wide">
+        <h2>{{ action }} Usuario</h2>
+        <p class="text-subtitle">Completa la información del perfil y permisos de acceso</p>
+
+        <form action="" method="POST" class="form-grid">
+            <div class="form-control">
+                <label for="username">Nombre de Usuario *:</label>
+                <input type="text" id="username" name="username" value="{{ user.username if user else '' }}" required>
+            </div>
+
+            <div class="form-control">
+                <label for="full_name">Nombre Completo:</label>
+                <input type="text" id="full_name" name="full_name" placeholder="Ej. Juan Pérez" value="{{ user.full_name if user else '' }}">
+            </div>
+
+            <div class="form-control">
+                <label for="email">Correo Electrónico:</label>
+                <input type="email" id="email" name="email" placeholder="correo@ejemplo.com" value="{{ user.email if user else '' }}">
+            </div>
+
+            <div class="form-control">
+                <label for="phone">Teléfono / Móvil:</label>
+                <input type="text" id="phone" name="phone" placeholder="+58 412 1234567" value="{{ user.phone if user else '' }}">
+            </div>
+
+            <div class="form-control">
+                <label for="password">Contraseña {% if action == 'Editar' %}<small>(dejar en blanco para conservar)</small>{% endif %} *:</label>
+                <input type="password" id="password" name="password" {% if action == 'Crear' %}required{% endif %}>
+            </div>
+
+            <div class="form-control">
+                <label for="role">Rol de Usuario *:</label>
+                <select id="role" name="role" required>
+                    <option value="ADMINISTRADOR" {% if user and user.role == 'ADMINISTRADOR' %}selected{% endif %}>ADMINISTRADOR (Acceso Completo)</option>
+                    <option value="SUPERVISOR" {% if user and user.role == 'SUPERVISOR' %}selected{% endif %}>SUPERVISOR (Crear y Editar)</option>
+                    <option value="OPERADOR" {% if user and user.role == 'OPERADOR' %}selected{% endif %}>OPERADOR (Solo Lectura)</option>
+                </select>
+            </div>
+
+            {% if session.role == 'ADMINISTRADOR' %}
+            <div class="form-control">
+                <label for="is_active">Estado de la Cuenta:</label>
+                <select id="is_active" name="is_active">
+                    <option value="1" {% if not user or user.is_active == 1 %}selected{% endif %}>Activo (Permitir Acceso)</option>
+                    <option value="0" {% if user and user.is_active == 0 %}selected{% endif %}>Inactivo (Desactivar / Borrado Lógico)</option>
+                </select>
+            </div>
+            {% endif %}
+
+            <div class="form-actions-full">
+                <button type="submit" class="btn btn-primary">Guardar Datos</button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

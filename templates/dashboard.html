@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div>
+        <h1>Base de Datos de Usuarios</h1>
+        <p>Listado de cuentas de usuario, estado e información de perfil</p>
+    </div>
+
+    {% if session.role in ['ADMINISTRADOR', 'SUPERVISOR'] %}
+        <a href="{{ url_for('create_user') }}" class="btn btn-success">+ Nuevo Usuario</a>
+    {% endif %}
+</div>
+
+<div class="card table-card">
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario / Nombre</th>
+                    <th>Contacto</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Última Conexión</th>
+                    <th>Registro</th>
+                    {% if session.role in ['ADMINISTRADOR', 'SUPERVISOR'] %}
+                        <th class="text-center">Acciones</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="{% if user.is_active == 0 %}row-disabled{% endif %}">
+                    <td>#{{ user.id }}</td>
+                    <td>
+                        <strong>{{ user.username }}</strong><br>
+                        <small class="text-muted">{{ user.full_name or 'Sin nombre registrado' }}</small>
+                    </td>
+                    <td>
+                        <small>📧 {{ user.email or 'N/A' }}</small><br>
+                        <small>📞 {{ user.phone or 'N/A' }}</small>
+                    </td>
+                    <td>
+                        <span class="badge badge-{{ user.role | lower }}">
+                            {{ user.role }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if user.is_active == 1 %}
+                            <span class="badge badge-activo">Activo</span>
+                        {% else %}
+                            <span class="badge badge-inactivo">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td><small>{{ user.last_login or 'Nunca' }}</small></td>
+                    <td><small>{{ user.created_at or 'N/A' }}</small></td>
+
+                    {% if session.role in ['ADMINISTRADOR', 'SUPERVISOR'] %}
+                    <td class="text-center action-buttons">
+                        <a href="{{ url_for('edit_user', user_id=user.id) }}" class="btn btn-sm btn-warning">Editar</a>
+
+                        {% if session.role == 'ADMINISTRADOR' %}
+                            <form action="{{ url_for('toggle_user_status', user_id=user.id) }}" method="POST" style="display:inline;">
+                                {% if user.is_active == 1 %}
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Desactivar este usuario? (Borrado Lógico)');">Desactivar</button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-sm btn-success">Activar</button>
+                                {% endif %}
+                            </form>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center">No hay usuarios registrados en el sistema.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="role-legend card">
+    <h3>Información sobre el Borrado Lógico y Estados:</h3>
+    <ul>
+        <li><strong>Activo:</strong> El usuario puede iniciar sesión y operar con los permisos de su rol.</li>
+        <li><strong>Inactivo (Borrado Lógico):</strong> La cuenta permanece registrada para mantener el historial, pero el usuario tiene el acceso bloqueado.</li>
+    </ul>
+</div>
+{% endblock %}

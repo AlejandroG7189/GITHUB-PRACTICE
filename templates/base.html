@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios - Sistema Web</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="navbar">
+        <div class="nav-container">
+            <h2 class="logo">Sistema DB Flask</h2>
+            {% if session.user_id %}
+                <div class="user-info">
+                    <span>Hola, <strong>{{ session.full_name or session.username }}</strong></span>
+                    <span class="badge badge-{{ session.role | lower }}">{{ session.role }}</span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline">Cerrar Sesión</a>
+                </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Sistema de Gestión de Usuarios — Python Flask & SQLite</p>
+    </footer>
+</body>
+</html>
